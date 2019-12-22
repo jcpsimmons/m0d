@@ -16,8 +16,12 @@
     <script src="lib/aframe-shader-frog.js"></script>
   </head>
   <body>
+    <audio controls loop autoplay>
+      <source src="audio/audioFiles/trance.wav" type="audio/wav" />
+    </audio>
     <a-scene>
       <a-box
+        id="PsyGoo"
         position="2 1.25 -5"
         height="2"
         depth="2"
@@ -45,4 +49,6 @@
       <a-sky color="black"></a-sky>
     </a-scene>
   </body>
+
+  <script src="audio/audio.js"></script>
 </html>
