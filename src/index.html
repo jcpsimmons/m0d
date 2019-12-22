@@ -14,17 +14,14 @@
     <link rel="stylesheet" href="" />
     <script src="https://aframe.io/releases/1.0.1/aframe.min.js"></script>
     <script src="lib/aframe-shader-frog.js"></script>
+    <script src="main.js" type="module"></script>
   </head>
   <body>
-    <audio controls loop autoplay>
-      <source src="audio/audioFiles/trance.wav" type="audio/wav" />
-    </audio>
-
     <div id="PlayButton">
-      <h1>Press to Begin</h1>
+      <button type="submit" onclick="main()">Press to begin</button>
     </div>
 
-    <a-scene>
+    <a-scene id="SceneOne" style="display:none">
       <a-box
         id="PsyGoo"
         position="2 1.25 -5"
@@ -35,13 +32,6 @@
         shader-frog="src:url(vr/shaders/Psych_Goo.json)"
         animation="property: rotation; to: 0 360 0; dur: 20000; easing: linear; loop: true"
       ></a-box>
-      <!-- <a-box
-        position="0 1.25 -5"
-        height="2"
-        depth="2"
-        width="1.25"
-        shader-frog="src:url(vr/shaders/Glitch_Shader.json)"
-      ></a-box> -->
       <a-box
         position="-2 1.25 -5"
         height="2"
@@ -54,6 +44,4 @@
       <a-sky color="black"></a-sky>
     </a-scene>
   </body>
-
-  <script src="audio/audio.js"></script>
 </html>
