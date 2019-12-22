@@ -16,12 +16,13 @@ const setPos = (elementID, posObj) => {
   entity.setAttribute("position", posObj);
 };
 
+// try to find some kind of draw opacity
+
 setInterval(() => {
   analyser.getFloatFrequencyData(dataArray);
-  var total = dataArray.reduce((a, b) => Math.abs(a) + Math.abs(b));
+  var total = dataArray.reduce((a, b) => a + b);
   var average = total / analyser.fftSize;
-  console.log(average / 10);
-  setPos("PsyGoo", { x: 2, y: average / 3 - 22, z: -5 });
+  setPos("PsyGoo", { x: 2, y: average / 3 + 25, z: -5 });
 }, 10);
 
 const audioElement = document.querySelector("audio");
