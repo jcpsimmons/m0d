@@ -3,6 +3,7 @@ const beginMedia = () => {
     '<audio controls loop autoplay style="display:none"> <source src="audio/audioFiles/trance.wav" type="audio/wav" /> </audio>';
   document.querySelector("#PlayButton").style.display = "none";
   document.querySelector("#SceneOne").style.display = "block";
+  document.querySelector("audio").play();
 };
 
 export default beginMedia;
