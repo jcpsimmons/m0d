@@ -1,39 +1,123 @@
-import { EffectComposer } from './node_modules/three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from './node_modules/three/examples/jsm/postprocessing/RenderPass.js';
-import { GlitchPass } from './node_modules/three/examples/jsm/postprocessing/GlitchPass.js';
+import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js";
+import { EffectComposer } from "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "./node_modules/three/examples/jsm/postprocessing/RenderPass.js";
+import { GlitchPass } from "./node_modules/three/examples/jsm/postprocessing/GlitchPass.js";
+import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r112/examples/jsm/controls/OrbitControls.js";
 
+function main() {
+  const canvas = document.querySelector("#MainCanvas");
+  const renderer = new THREE.WebGLRenderer({ canvas });
+  renderer.autoClearColor = false;
 
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const fov = 75;
+  const aspect = 2; // the canvas default
+  const near = 0.1;
+  const far = 100;
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  camera.position.z = 3;
 
-var renderer = new THREE.WebGLRenderer();
+  const controls = new OrbitControls(camera, canvas);
+  controls.target.set(0, 0, 0);
+  controls.update();
 
-var composer = new EffectComposer(renderer);
+  const scene = new THREE.Scene();
+  // init fx composer
+  const composer = new EffectComposer(renderer);
 
+  {
+    const color = 0xffffff;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    scene.add(light);
+  }
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+  const boxWidth = 1;
+  const boxHeight = 1;
+  const boxDepth = 1;
+  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
 
-var geometry = new THREE.BoxGeometry(1, 1, 1);
-var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-var cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+  function makeInstance(geometry, color, x) {
+    const material = new THREE.MeshPhongMaterial({ color });
 
-camera.position.z = 5;
-var renderPass = new RenderPass(scene, camera);
-composer.addPass(renderPass);
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
 
-var glitchPass = new GlitchPass();
-composer.addPass(glitchPass);
+    cube.position.x = x;
 
-var animate = function () {
-  requestAnimationFrame(animate);
+    return cube;
+  }
 
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  const cubes = [
+    makeInstance(geometry, 0x44aa88, 0),
+    makeInstance(geometry, 0x8844aa, -2),
+    makeInstance(geometry, 0xaa8844, 2)
+  ];
 
-  // renderer.render(scene, camera);
-  composer.render()
-};
+  let renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+  let glitchPass = new GlitchPass();
+  composer.addPass(glitchPass);
 
-animate();
+  const bgScene = new THREE.Scene();
+  let bgMesh;
+  {
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(
+      "https://threejsfundamentals.org/threejs/resources/images/equirectangularmaps/tears_of_steel_bridge_2k.jpg"
+    );
+    texture.magFilter = THREE.LinearFilter;
+    texture.minFilter = THREE.LinearFilter;
+
+    const shader = THREE.ShaderLib.equirect;
+    const material = new THREE.ShaderMaterial({
+      fragmentShader: shader.fragmentShader,
+      vertexShader: shader.vertexShader,
+      uniforms: shader.uniforms,
+      depthWrite: false,
+      side: THREE.BackSide
+    });
+    material.uniforms.tEquirect.value = texture;
+    const plane = new THREE.BoxBufferGeometry(2, 2, 2);
+    bgMesh = new THREE.Mesh(plane, material);
+    bgScene.add(bgMesh);
+  }
+
+  function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+      renderer.setSize(width, height, false);
+    }
+    return needResize;
+  }
+
+  function render(time) {
+    time *= 0.001;
+
+    if (resizeRendererToDisplaySize(renderer)) {
+      const canvas = renderer.domElement;
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+    }
+
+    cubes.forEach((cube, ndx) => {
+      const speed = 1 + ndx * 0.1;
+      const rot = time * speed;
+      cube.rotation.x = rot;
+      cube.rotation.y = rot;
+    });
+
+    bgMesh.position.copy(camera.position);
+
+    composer.render();
+
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+}
+
+main();
