@@ -1,7 +1,4 @@
-import * as THREE from "https://threejsfundamentals.org/threejs/resources/threejs/r112/build/three.module.js";
-import { EffectComposer } from "./node_modules/three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "./node_modules/three/examples/jsm/postprocessing/RenderPass.js";
-import { BloomPass } from "./node_modules/three/examples/jsm/postprocessing/BloomPass.js";
+// import * as THREE from "./node_modules/three/build/three.min.js";
 import { OrbitControls } from "https://threejsfundamentals.org/threejs/resources/threejs/r112/examples/jsm/controls/OrbitControls.js";
 
 class PickHelper {
